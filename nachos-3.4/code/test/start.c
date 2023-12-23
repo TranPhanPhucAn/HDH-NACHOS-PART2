@@ -178,6 +178,30 @@ PrintString:
     	j   $31
     	.end PrintString
 
+    	.globl CreateFile
+    	.ent    CreateFile
+CreateFile:
+    	addiu $2,$0,SC_CreateFile
+    	syscall
+    	j   $31
+    	.end CreateFile
+
+    	.globl OpenF
+    	.ent    OpenF
+OpenF:
+    	addiu $2,$0,SC_OpenFile
+    	syscall
+    	j   $31
+    	.end OpenF
+
+    	.globl CloseF
+    	.ent    CloseF
+CloseF:
+    	addiu $2,$0,SC_CloseFile
+    	syscall
+    	j   $31
+    	.end CloseF
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

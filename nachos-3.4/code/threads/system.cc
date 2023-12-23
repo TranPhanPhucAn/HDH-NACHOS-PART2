@@ -29,14 +29,21 @@ SynchDisk   *synchDisk;
 
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
-Semaphore *addrLock;	// semaphore
-BitMap *gPhysPageBitMap;	// quan ly cac frame
-PTable *pTab;		// quan ly bang tien trinh
-STable *semTab;		// quan ly semaphore
-#endif
 
 /*define gSynchConsole pointer*/
 SynchConsole* gSynchConsole;
+
+FTable* gFTable;
+
+Semaphore* addrLock;
+
+BitMap* gPhysPageBitMap;
+
+STable* semTab;
+
+PTable* pTab;
+
+#endif
 
 #ifdef NETWORK
 PostOffice *postOffice;
@@ -156,11 +163,18 @@ Initialize(int argc, char **argv)
     
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
+    
     gSynchConsole = new SynchConsole();
+
+    gFTable = new FTable();
+
     addrLock = new Semaphore("addrLock", 1);
-    gPhysPageBitMap = new BitMap(256);
-    pTab = new PTable(10);
+
+    gPhysPageBitMap = new BitMap(NumPhysPages);
+
     semTab = new STable();
+
+    pTab = new PTable();
 #endif
 
 #ifdef FILESYS
@@ -190,6 +204,18 @@ Cleanup()
     
 #ifdef USER_PROGRAM
     delete machine;
+    
+    delete gSynchConsole;
+
+    delete gFTable;
+
+    delete addrLock;
+
+    delete gPhysPageBitMap;
+
+    delete semTab;
+
+    delete pTab;
 #endif
 
 #ifdef FILESYS_NEEDED

@@ -1,4 +1,4 @@
-/*#include "syscall.h"
+#include "syscall.h"
 
 int main() {
 	int N;
@@ -7,16 +7,5 @@ int main() {
 	Halt();
 	return 0;
     	
-}*/
-#include "syscall.h"
-
-
-void main()
-{
-	int pingPID, pongPID;
-	PrintString("Ping-Pong test starting...\n\n");
-	pingPID = Exec("./test/char");
-	pongPID = Exec("./test/help");
-	Join(pingPID);
-	Join(pongPID);	
 }
+

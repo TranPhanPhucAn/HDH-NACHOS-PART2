@@ -1,7 +1,7 @@
 /* help.c
  *	A simple program to output name of each members
  */
-/*
+
 #include "syscall.h"
 
 int main()
@@ -22,14 +22,4 @@ int main()
 	PrintString("==================================================\n");
 	Halt();
 }
-*/
-#include "syscall.h"
 
-int main()
-{
-	int i;	
-	for(i =0; i< 1000; i++)
-	{
-		PrintChar('B');
-	}
-}
