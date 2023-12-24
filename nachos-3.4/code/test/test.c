@@ -2,9 +2,11 @@
 
 int main()
 {
-    OpenFileID res;
-    res = OpenF("hello.txt", 0);
-    CloseF(res);
+    int id,res;
+    id = OpenF("hello.txt", 0);
+   
+    res =  ReadF("abc",4,id);
+	PrintInt(res);
     Halt();
 
 }

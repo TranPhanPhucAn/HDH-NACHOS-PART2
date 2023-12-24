@@ -281,6 +281,89 @@ void ExceptionHandlerCloseFile() {
     machine->WriteRegister(2, ret);
 }
 
+void ExceptionHandlerReadFile() {
+    int buffer = machine->ReadRegister(4);
+    int charcount = machine->ReadRegister(5);
+    int fid = machine->ReadRegister(6);
+    if (charcount < 0) {
+        machine->WriteRegister(2, -1);
+        return;
+    }
+    int i = 0;
+    if (fid == ConsoleInput) {
+        /*read from console input*/            
+        while (i < charcount) {
+            char oneChar = 0;
+            int ret = gSynchConsole->Read(&oneChar,1);
+            if (ret == -1) {
+                machine->WriteRegister(2, -2);
+                return;
+            } else if (ret == 0) break; 
+            machine->WriteMem(buffer + i, 1, (int)oneChar);
+            ++i;
+        }
+        machine->WriteRegister(2, i);
+        return;      
+    }
+    /*read from file*/
+    fid -= 2;
+    if (gFTable->getType(fid) == -1) {
+        machine->WriteRegister(2, -1);
+        return;
+    }
+    while (i < charcount) {
+        char oneChar = 0;
+        if (gFTable->ReadChar(oneChar, fid) == 0) break;
+        machine->WriteMem(buffer + i, 1, (int)oneChar);
+        ++i;
+    }
+    machine->WriteRegister(2, i);
+}
+void ExceptionHandlerWriteFile() {
+    int buffer = machine->ReadRegister(4);
+    int charcount = machine->ReadRegister(5);
+    int fid = machine->ReadRegister(6);
+    if (charcount < 0) {
+        machine->WriteRegister(2, -1);
+        return;
+    }
+    int i = 0;
+    if (fid == ConsoleOutput) {            
+        /*write to console output*/
+        while (i < charcount) {
+            int oneChar = 0;
+            bool ret = machine->ReadMem(buffer + i, 1, &oneChar); 
+            if (!ret) {
+                machine->WriteRegister(2, -1);
+                return;
+            }
+            char c = (char)oneChar;
+            gSynchConsole->Write(&c,1);
+            ++i;
+        }
+        machine->WriteRegister(2, i);
+        return;      
+    }
+    /*write to file*/
+    fid -= 2;
+    if (gFTable->getType(fid) != 0) {
+        machine->WriteRegister(2, -1);
+        return;
+    }
+    while (i < charcount) {
+        int oneChar = 0;
+        bool ret = machine->ReadMem(buffer + i, 1, &oneChar); 
+        if (!ret) {
+            machine->WriteRegister(2, -1);
+            return;
+        }
+        char c = (char)oneChar;
+        gFTable->WriteChar(c, fid);
+        ++i;
+    }
+    machine->WriteRegister(2, i);
+}
+
 
 void ExceptionHandleExec()
 {
@@ -428,6 +511,14 @@ void ExceptionHandler(ExceptionType which)
             break;
         case SC_CloseFile:
             ExceptionHandlerCloseFile();
+            IncreasePC();
+            break;
+        case SC_ReadFile:
+            ExceptionHandlerReadFile();
+            IncreasePC();
+            break;
+        case SC_WriteFile:
+            ExceptionHandlerWriteFile();
             IncreasePC();
             break;
         case SC_Exec:

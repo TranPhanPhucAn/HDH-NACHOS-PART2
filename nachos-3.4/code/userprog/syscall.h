@@ -43,6 +43,9 @@
 #define SC_OpenFile 18
 #define SC_CloseFile 19
 
+#define SC_ReadFile 20
+#define SC_WriteFile 21
+
 #define MAX_STRING_SIZE 100
 
 #ifndef IN_ASM
@@ -155,6 +158,10 @@ int CreateFile(char *name);
 OpenFileID OpenF(char *name, int type);
 
 int CloseF(OpenFileID id);
+
+int ReadF(char *buffer, int charcount, OpenFileID id);
+
+int WriteF(char *buffer, int charcount, OpenFileID id);
 
 #endif /* IN_ASM */
 
