@@ -318,7 +318,7 @@ void ExceptionHandlerReadFile()
             }
             else if (result == 0)
                 break;
-            machine->WriteMem(buffer + i, 1, (int)c);
+            machine->WriteMem(buf + i, 1, (int)c);
             ++i;
         }
         machine->WriteRegister(2, i);
@@ -336,14 +336,14 @@ void ExceptionHandlerReadFile()
         char c = 0;
         if (gFTable->ReadChar(c, fileID) == 0)
             break;
-        machine->WriteMem(buffer + i, 1, (int)c);
+        machine->WriteMem(buf + i, 1, (int)c);
         ++i;
     }
     machine->WriteRegister(2, i);
 }
 void ExceptionHandlerWriteFile()
 {
-    int buffer = machine->ReadRegister(4);
+    int buf = machine->ReadRegister(4);
     int count = machine->ReadRegister(5);
     int fileID = machine->ReadRegister(6);
     if (count < 0)
@@ -358,14 +358,14 @@ void ExceptionHandlerWriteFile()
         while (i < count)
         {
             int c = 0;
-            bool result = machine->ReadMem(buffer + i, 1, &c);
+            bool result = machine->ReadMem(buf + i, 1, &c);
             if (!result)
             {
                 machine->WriteRegister(2, -1);
                 return;
             }
-            char c = (char)c;
-            gSynchConsole->Write(&c, 1);
+            char cr = (char)c;
+            gSynchConsole->Write(&cr, 1);
             ++i;
         }
         machine->WriteRegister(2, i);
@@ -381,14 +381,14 @@ void ExceptionHandlerWriteFile()
     while (i < count)
     {
         int c = 0;
-        bool result = machine->ReadMem(buffer + i, 1, &c);
+        bool result = machine->ReadMem(buf + i, 1, &c);
         if (!result)
         {
             machine->WriteRegister(2, -1);
             return;
         }
-        char c = (char)c;
-        gFTable->WriteChar(c, fileID);
+        char cr = (char)c;
+        gFTable->WriteChar(cr, fileID);
         ++i;
     }
     machine->WriteRegister(2, i);

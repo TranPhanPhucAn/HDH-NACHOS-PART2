@@ -5,7 +5,7 @@ int main()
     int id,res;
     id = Open("Hello.txt", 0);
 
-    res =  ReadF("abc",4,id);
+    res =  Read("abc",4,id);
     PrintInt(res);
     Halt();
 }
