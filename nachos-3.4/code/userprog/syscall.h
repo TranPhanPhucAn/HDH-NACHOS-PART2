@@ -40,9 +40,6 @@
 #define SC_PrintString 16
 
 
-#define SC_ReadFile 20
-#define SC_WriteFile 21
-
 #define SC_CreateSemaphore 22
 #define SC_Wait 23
 #define SC_Signal 24
@@ -153,10 +150,6 @@ void PrintChar(char character);
 void ReadString(char *buffer, int length);
 
 void PrintString(char *buffer);
-
-int ReadF(char *buffer, int charcount, OpenFileID id);
-
-int WriteF(char *buffer, int charcount, OpenFileID id);
 
 int CreateSemaphore(char *name, int semval);
 

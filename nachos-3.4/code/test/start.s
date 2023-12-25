@@ -178,22 +178,7 @@ PrintString:
     	j   $31
     	.end PrintString
 		
-
-		.globl ReadF
-		.ent	ReadF
-ReadF:
-		addiu $2,$0,SC_ReadFile
-		syscall
-		j	$31
-		.end ReadF
-
-		.globl WriteF
-		.ent	WriteF
-WriteF:
-		addiu $2,$0,SC_WriteFile
-		syscall
-		j	$31
-		.end WriteF		
+	
 
 		globl CreateSemaphore
 		.ent	CreateSemaphore
