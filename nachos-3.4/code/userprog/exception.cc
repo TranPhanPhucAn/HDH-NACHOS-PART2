@@ -609,11 +609,11 @@ void ExceptionHandler(ExceptionType which)
             ExceptionHandlerCloseFile();
             IncreasePC();
             break;
-        case SC_ReadFile:
+        case SC_Read:
             ExceptionHandlerReadFile();
             IncreasePC();
             break;
-        case SC_WriteFile:
+        case SC_Write:
             ExceptionHandlerWriteFile();
             IncreasePC();
             break;
