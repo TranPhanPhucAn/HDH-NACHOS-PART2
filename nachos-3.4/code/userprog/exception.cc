@@ -220,7 +220,7 @@ void ExceptionHandleCreateFile()
 {
     // Load file name
     int virtAddr = machine->ReadRegister(4);
-    char* fileName = User2System(virtAddr, MaxFileLength + 1);
+    char *fileName = User2System(virtAddr, MaxFileLength + 1);
     // Check valid file name and memory enough
     if (!strlen(fileName) || fileName == NULL)
     {
@@ -247,7 +247,7 @@ void ExceptionHandlerOpenFile()
     // Load file name
     int virtAddr = machine->ReadRegister(4);
     int type = machine->ReadRegister(5);
-    char* fileName = User2System(virtAddr, MaxFileLength + 1);
+    char *fileName = User2System(virtAddr, MaxFileLength + 1);
 
     // Open file
     OpenFile *pFile = fileSystem->Open(fileName);
@@ -264,19 +264,19 @@ void ExceptionHandlerOpenFile()
     {
         delete pFile;
         machine->WriteRegister(2, -1);
-	delete[] fileName;
+        delete[] fileName;
         return;
     }
     else
     {
-        machine->WriteRegister(2, ret);
-	delete[] fileName;
+        machine->WriteRegister(2, ret + 2);
+        delete[] fileName;
         return;
     }
 }
-//Input: Id cua file
-//Output: tra ve 1 neu thanh cong, 0 neu that bai
-//Dong file co idFile tu tham so
+// Input: Id cua file
+// Output: tra ve 1 neu thanh cong, 0 neu that bai
+// Dong file co idFile tu tham so
 void ExceptionHandlerCloseFile()
 {
     // Load fileID
