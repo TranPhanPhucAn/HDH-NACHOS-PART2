@@ -39,9 +39,6 @@
 #define SC_ReadString 15
 #define SC_PrintString 16
 
-#define SC_CreateFile 17
-#define SC_OpenFile 18
-#define SC_CloseFile 19
 
 #define SC_ReadFile 20
 #define SC_WriteFile 21
@@ -112,7 +109,7 @@ int Create(char *name);
 /* Open the Nachos file "name", and return an "OpenFileId" that can
  * be used to read and write to the file.
  */
-OpenFileId Open(char *name);
+OpenFileId Open(char *name, int type);
 
 /* Write "size" bytes from "buffer" to the open file. */
 void Write(char *buffer, int size, OpenFileId id);
@@ -157,21 +154,15 @@ void ReadString(char *buffer, int length);
 
 void PrintString(char *buffer);
 
-int CreateFile(char *name);
-
-OpenFileID OpenF(char *name, int type);
-
-int CloseF(OpenFileID id);
-
 int ReadF(char *buffer, int charcount, OpenFileID id);
 
 int WriteF(char *buffer, int charcount, OpenFileID id);
 
-int CreateSemaphore(char* name, int semval);
+int CreateSemaphore(char *name, int semval);
 
-int Wait(char* name);
+int Wait(char *name);
 
-int Signal(char* name);
+int Signal(char *name);
 
 #endif /* IN_ASM */
 

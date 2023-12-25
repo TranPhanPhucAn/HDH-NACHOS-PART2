@@ -214,146 +214,176 @@ void ExceptionHandlerPrintString()
 
     delete buffer;
 }
-
+// Output: Loi tra ve -1, thanh cong tra ve 0
+// Chuc nang: tao ra file moi voi tham so la ten file
 void ExceptionHandleCreateFile()
 {
     // Load file name
-    int fileName = machine->ReadRegister(4);
-    char s[MaxFileLength + 1] = {0};
-    for (int i = 0; i < MaxFileLength; ++i)
+    int virtAddr = machine->ReadRegister(4);
+    char* fileName = User2System(virtAddr, MaxFileLength + 1);
+    // Check valid file name and memory enough
+    if (!strlen(fileName) || fileName == NULL)
     {
-        int a = 0;
-        machine->ReadMem(fileName + i, 1, &a);
-        if (a == 0)
-            break;
-        s[i] = (char)a;
+        printf("\n Unable to read filename!");
+        DEBUG('a', "\n Unable to read filename!");
+        machine->WriteRegister(2, -1);
+        return;
     }
     // Create new file
-    bool success = fileSystem->Create(s, 0);
+    bool success = fileSystem->Create(fileName, 0);
     if (success)
         machine->WriteRegister(2, 0);
     else
         machine->WriteRegister(2, -1);
+    delete[] fileName;
 }
 
-void ExceptionHandlerOpenFile() {
+// Input: arg1: Dia chi cua chuoi name, arg2: type
+// Output: Tra ve OpenFileID neu thanh cong, -1 neu loi
+// Chuc nang: Tra ve ID cua file.
+
+void ExceptionHandlerOpenFile()
+{
     // Load file name
-    int fileName = machine->ReadRegister(4);
-    char s[MaxFileLength+1] = {0};
-    for (int j = 0; j < MaxFileLength; ++j) {
-        int a = 0;
-        machine->ReadMem(fileName+j, 1, &a);
-        if (a == 0)
-		break;
-        s[j] = (char)a;
-    }
+    int virtAddr = machine->ReadRegister(4);
+    int type = machine->ReadRegister(5);
+    char* fileName = User2System(virtAddr, MaxFileLength + 1);
+
     // Open file
-    OpenFile* pFile = fileSystem->Open(s);
-    if (pFile == NULL) {
+    OpenFile *pFile = fileSystem->Open(fileName);
+    if (pFile == NULL)
+    {
         machine->WriteRegister(2, -1);
+        delete[] fileName;
         return;
     }
-    // Load file type
-    int type = machine->ReadRegister(5);
+
     // Add open file to ftable
     int ret = gFTable->Open(pFile, type);
-    if (ret == -1) {
+    if (ret == -1)
+    {
         delete pFile;
         machine->WriteRegister(2, -1);
+	delete[] fileName;
         return;
     }
-    else {
-        machine->WriteRegister(2, ret+2);
+    else
+    {
+        machine->WriteRegister(2, ret);
+	delete[] fileName;
         return;
     }
 }
-void ExceptionHandlerCloseFile() {
-    // Load fid
-    int fid = machine->ReadRegister(4);
+//Input: Id cua file
+//Output: tra ve 1 neu thanh cong, 0 neu that bai
+//Dong file co idFile tu tham so
+void ExceptionHandlerCloseFile()
+{
+    // Load fileID
+    int fileID = machine->ReadRegister(4);
 
-    if (fid == ConsoleInput || fid == ConsoleOutput) {
+    if (fileID == ConsoleInput || fileID == ConsoleOutput)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     // fid exception
-    fid -= 2;
-    int ret = gFTable->Close(fid);
+    fileID -= 2;
+    int ret = gFTable->Close(fileID);
     machine->WriteRegister(2, ret);
 }
 
-void ExceptionHandlerReadFile() {
+void ExceptionHandlerReadFile()
+{
     int buffer = machine->ReadRegister(4);
     int charcount = machine->ReadRegister(5);
     int fid = machine->ReadRegister(6);
-    if (charcount < 0) {
+    if (charcount < 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     int i = 0;
-    if (fid == ConsoleInput) {
-        /*read from console input*/            
-        while (i < charcount) {
+    if (fid == ConsoleInput)
+    {
+        /*read from console input*/
+        while (i < charcount)
+        {
             char oneChar = 0;
-            int ret = gSynchConsole->Read(&oneChar,1);
-            if (ret == -1) {
+            int ret = gSynchConsole->Read(&oneChar, 1);
+            if (ret == -1)
+            {
                 machine->WriteRegister(2, -2);
                 return;
-            } else if (ret == 0) break; 
+            }
+            else if (ret == 0)
+                break;
             machine->WriteMem(buffer + i, 1, (int)oneChar);
             ++i;
         }
         machine->WriteRegister(2, i);
-        return;      
+        return;
     }
     /*read from file*/
     fid -= 2;
-    if (gFTable->getType(fid) == -1) {
+    if (gFTable->getType(fid) == -1)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
-    while (i < charcount) {
+    while (i < charcount)
+    {
         char oneChar = 0;
-        if (gFTable->ReadChar(oneChar, fid) == 0) break;
+        if (gFTable->ReadChar(oneChar, fid) == 0)
+            break;
         machine->WriteMem(buffer + i, 1, (int)oneChar);
         ++i;
     }
     machine->WriteRegister(2, i);
 }
-void ExceptionHandlerWriteFile() {
+void ExceptionHandlerWriteFile()
+{
     int buffer = machine->ReadRegister(4);
     int charcount = machine->ReadRegister(5);
     int fid = machine->ReadRegister(6);
-    if (charcount < 0) {
+    if (charcount < 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     int i = 0;
-    if (fid == ConsoleOutput) {            
+    if (fid == ConsoleOutput)
+    {
         /*write to console output*/
-        while (i < charcount) {
+        while (i < charcount)
+        {
             int oneChar = 0;
-            bool ret = machine->ReadMem(buffer + i, 1, &oneChar); 
-            if (!ret) {
+            bool ret = machine->ReadMem(buffer + i, 1, &oneChar);
+            if (!ret)
+            {
                 machine->WriteRegister(2, -1);
                 return;
             }
             char c = (char)oneChar;
-            gSynchConsole->Write(&c,1);
+            gSynchConsole->Write(&c, 1);
             ++i;
         }
         machine->WriteRegister(2, i);
-        return;      
+        return;
     }
     /*write to file*/
     fid -= 2;
-    if (gFTable->getType(fid) != 0) {
+    if (gFTable->getType(fid) != 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
-    while (i < charcount) {
+    while (i < charcount)
+    {
         int oneChar = 0;
-        bool ret = machine->ReadMem(buffer + i, 1, &oneChar); 
-        if (!ret) {
+        bool ret = machine->ReadMem(buffer + i, 1, &oneChar);
+        if (!ret)
+        {
             machine->WriteRegister(2, -1);
             return;
         }
@@ -363,7 +393,6 @@ void ExceptionHandlerWriteFile() {
     }
     machine->WriteRegister(2, i);
 }
-
 
 void ExceptionHandleExec()
 {
@@ -426,55 +455,67 @@ void ExceptionHandleExit()
     currentThread->Finish();
     return;
 }
-void ExceptionHandlerCreateSemaphore() {
+void ExceptionHandlerCreateSemaphore()
+{
     int name = machine->ReadRegister(4);
     int semval = machine->ReadRegister(5);
-    if (name == 0 || semval < 0) {
+    if (name == 0 || semval < 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     /*use SEM_MAXNAMESIZE to get name*/
     char s[SEM_MAXNAMESIZE] = {0};
-    for (int i = 0; i < SEM_MAXNAMESIZE-1; ++i) {
+    for (int i = 0; i < SEM_MAXNAMESIZE - 1; ++i)
+    {
         int oneChar = 0;
-        machine->ReadMem(name+i, 1, &oneChar);
-        if (oneChar == 0) break;
+        machine->ReadMem(name + i, 1, &oneChar);
+        if (oneChar == 0)
+            break;
         s[i] = (char)oneChar;
     }
     /*create semaphore*/
     int ret = semTab->Create(s, semval);
     machine->WriteRegister(2, ret);
 }
-void ExceptionHandlerWait() {
+void ExceptionHandlerWait()
+{
     int name = machine->ReadRegister(4);
-    if (name == 0) {
+    if (name == 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     /*use SEM_MAXNAMESIZE to get name*/
     char s[SEM_MAXNAMESIZE] = {0};
-    for (int i = 0; i < SEM_MAXNAMESIZE-1; ++i) {
+    for (int i = 0; i < SEM_MAXNAMESIZE - 1; ++i)
+    {
         int oneChar = 0;
-        machine->ReadMem(name+i, 1, &oneChar);
-        if (oneChar == 0) break;
+        machine->ReadMem(name + i, 1, &oneChar);
+        if (oneChar == 0)
+            break;
         s[i] = (char)oneChar;
     }
     /*wait semaphore*/
     int ret = semTab->Wait(s);
     machine->WriteRegister(2, ret);
 }
-void ExceptionHandlerSignal() {
+void ExceptionHandlerSignal()
+{
     int name = machine->ReadRegister(4);
-    if (name == 0) {
+    if (name == 0)
+    {
         machine->WriteRegister(2, -1);
         return;
     }
     /*use SEM_MAXNAMESIZE to get name*/
     char s[SEM_MAXNAMESIZE] = {0};
-    for (int i = 0; i < SEM_MAXNAMESIZE-1; ++i) {
+    for (int i = 0; i < SEM_MAXNAMESIZE - 1; ++i)
+    {
         int oneChar = 0;
-        machine->ReadMem(name+i, 1, &oneChar);
-        if (oneChar == 0) break;
+        machine->ReadMem(name + i, 1, &oneChar);
+        if (oneChar == 0)
+            break;
         s[i] = (char)oneChar;
     }
     /*signal semaphore*/
@@ -556,15 +597,15 @@ void ExceptionHandler(ExceptionType which)
             ExceptionHandlerPrintString();
             IncreasePC();
             break;
-        case SC_CreateFile:
+        case SC_Create:
             ExceptionHandleCreateFile();
             IncreasePC();
             break;
-        case SC_OpenFile:
+        case SC_Open:
             ExceptionHandlerOpenFile();
             IncreasePC();
             break;
-        case SC_CloseFile:
+        case SC_Close:
             ExceptionHandlerCloseFile();
             IncreasePC();
             break;
@@ -588,18 +629,18 @@ void ExceptionHandler(ExceptionType which)
             ExceptionHandleExit();
             IncreasePC();
             break;
-	case SC_CreateSemaphore:
+        case SC_CreateSemaphore:
             ExceptionHandlerCreateSemaphore();
             IncreasePC();
             break;
         case SC_Wait:
             ExceptionHandlerWait();
             IncreasePC();
-           break;
+            break;
         case SC_Signal:
-           ExceptionHandlerSignal();
-           IncreasePC();
-           break;
+            ExceptionHandlerSignal();
+            IncreasePC();
+            break;
         }
 
         break;
