@@ -39,7 +39,6 @@
 #define SC_ReadString 15
 #define SC_PrintString 16
 
-
 #define SC_CreateSemaphore 22
 #define SC_Wait 23
 #define SC_Signal 24
@@ -120,7 +119,7 @@ void Write(char *buffer, int size, OpenFileId id);
 int Read(char *buffer, int size, OpenFileId id);
 
 /* Close the file, we're done reading and writing to it. */
-void Close(OpenFileId id);
+int Close(OpenFileId id);
 
 /* User-level thread operations: Fork and Yield.  To allow multiple
  * threads to run within a user program.
@@ -135,9 +134,6 @@ void Fork(void (*func)());
  * or not.
  */
 void Yield();
-
-// New type
-typedef int OpenFileID;
 
 int ReadInt();
 
