@@ -334,8 +334,10 @@ void ExceptionHandlerReadFile()
     while (i < count)
     {
         char c = 0;
-        if (gFTable->ReadChar(c, fileID) == 0)
-            break;
+        if (gFTable->ReadChar(c, fileID) == 0){
+            machine->WriteRegister(2,-2);
+            return;
+        } 
         machine->WriteMem(buf + i, 1, (int)c);
         ++i;
     }
