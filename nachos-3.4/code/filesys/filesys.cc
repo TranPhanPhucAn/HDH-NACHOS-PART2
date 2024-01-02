@@ -140,6 +140,18 @@ FileSystem::FileSystem(bool format)
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
     }
+
+    // Install
+    openfile = new OpenFile*[15];
+    index = 0;
+    for(int i =0; i < 15; ++i)
+    {
+        openfile[i] = NULL;
+    }
+    openfile[index++] = this->Open("stdin", 2);
+	openfile[index++] = this->Open("stdout", 3);
+	this->Create("stdin", 0);
+	this->Create("stdout", 0);
 }
 
 //----------------------------------------------------------------------
@@ -237,8 +249,37 @@ FileSystem::Open(char *name)
     if (sector >= 0) 		
 	openFile = new OpenFile(sector);	// name was found in directory 
     delete directory;
-    return openFile;				// return NULL if not found
+    // return openFile;
+    index++;
+    return openfile[index-1];				// return NULL if not found
 }
+
+OpenFile *
+FileSystem::Open(char *name, int type)
+{
+    int freeSlot = this->FindFreeSlot();
+    Directory *directory = new Directory(NumDirEntries);
+    OpenFile *openFile = NULL;
+    int sector;
+
+    DEBUG('f', "Opening file %s\n", name);
+    directory->FetchFrom(directoryFile);
+    sector = directory->Find(name);
+    if(sector >= 0)
+        openfile[freeSlot] = new OpenFile(sector, type);
+    delete directory;
+    return openfile[freeSlot];
+}
+
+int FileSystem::FindFreeSlot(){
+    for(int i =2; i < 15; i++)
+    {
+        if(openfile[i] == NULL)
+            return i;
+    }
+    return -1;
+}
+
 
 //----------------------------------------------------------------------
 // FileSystem::Remove
@@ -339,3 +380,7 @@ FileSystem::Print()
     delete freeMap;
     delete directory;
 } 
+
+
+
+

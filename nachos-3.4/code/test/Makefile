@@ -35,7 +35,7 @@ CPP = gcc -E
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort char int string help ascii test
+all: halt shell matmult sort char int string help ascii test ping pong pingpong pingv2 pongv2 pingpongv2 students watertap testprogram
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.c > strt.s
@@ -114,8 +114,47 @@ pong: pong.o start.o
 	$(LD) $(LDFLAGS) start.o pong.o -o pong.coff
 	../bin/coff2noff pong.coff pong
 
-schedule.o: schedule.c
-	$(CC) $(CFLAGS) -c ping.c
-schedule: schedule.o start.o
-	$(LD) $(LDFLAGS) start.o schedule.o -o schedule.coff
-	../bin/coff2noff schedule.coff schedule
+pingpong.o: pingpong.c
+	$(CC) $(CFLAGS) -c pingpong.c
+pingpong: pingpong.o start.o
+	$(LD) $(LDFLAGS) start.o pingpong.o -o pingpong.coff
+	../bin/coff2noff pingpong.coff pingpong
+
+pingv2.o: pingv2.c
+	$(CC) $(CFLAGS) -c pingv2.c
+pingv2: pingv2.o start.o
+	$(LD) $(LDFLAGS) start.o pingv2.o -o pingv2.coff
+	../bin/coff2noff pingv2.coff pingv2
+
+pongv2.o: pongv2.c
+	$(CC) $(CFLAGS) -c pongv2.c
+pongv2: pongv2.o start.o
+	$(LD) $(LDFLAGS) start.o pongv2.o -o pongv2.coff
+	../bin/coff2noff pongv2.coff pongv2
+
+pingpongv2.o: pingpongv2.c
+	$(CC) $(CFLAGS) -c pingpongv2.c
+pingpongv2: pingpongv2.o start.o
+	$(LD) $(LDFLAGS) start.o pingpongv2.o -o pingpongv2.coff
+	../bin/coff2noff pingpongv2.coff pingpongv2
+
+students.o: students.c
+	$(CC) $(CFLAGS) -c students.c
+students: students.o start.o
+	$(LD) $(LDFLAGS) start.o students.o -o students.coff
+	../bin/coff2noff students.coff students
+
+watertap.o: watertap.c
+	$(CC) $(CFLAGS) -c watertap.c
+watertap: watertap.o start.o
+	$(LD) $(LDFLAGS) start.o watertap.o -o watertap.coff
+	../bin/coff2noff watertap.coff watertap
+
+testprogram.o: testprogram.c
+	$(CC) $(CFLAGS) -c testprogram.c
+testprogram: testprogram.o start.o
+	$(LD) $(LDFLAGS) start.o testprogram.o -o testprogram.coff
+	../bin/coff2noff testprogram.coff testprogram
+
+
+

@@ -38,12 +38,38 @@
 #include "copyright.h"
 #include "openfile.h"
 
+typedef int OpenFileId;
+
 #ifdef FILESYS_STUB 		// Temporarily implement file system calls as 
 				// calls to UNIX, until the real file system
 				// implementation is available
 class FileSystem {
   public:
-    FileSystem(bool format) {}
+	// 
+	OpenFile** openfile;
+	int index;
+
+    FileSystem(bool format) {
+		openfile = new OpenFile*[15];
+		index = 0;
+		for(int i = 0; i < 15; ++i)
+		{
+			openfile[i] = NULL;
+		}
+		this->Create("stdin", 0);
+		this->Create("stdout",0);
+		openfile[index++] = this->Open("stdin",2);
+		openfile[index++] = this->Open("stdout", 3);
+	}
+
+	~FileSystem(){
+		for(int i =0; i < 15; ++i)
+		{
+			if (openfile[i]!= NULL)
+				delete openfile[i];
+		}
+		delete[] openfile;
+ 	}
 
     bool Create(char *name, int initialSize) { 
 	int fileDescriptor = OpenForWrite(name);
@@ -59,14 +85,33 @@ class FileSystem {
 	  if (fileDescriptor == -1) return NULL;
 	  return new OpenFile(fileDescriptor);
       }
+	
+	//Overload Open function
+	OpenFile* Open(char *name, int type) {
+		int fileDescriptor = OpenForReadWrite(name, FALSE);
 
+		if (fileDescriptor == -1) return NULL;
+		//index++;
+		return new OpenFile(fileDescriptor, type);
+	}
+	// Function to find empty slot
+	int FindFreeSlot(){
+		for (int i= 2; i< 10; i++){
+			if(openfile[i] ==NULL) 
+				return i;
+		}
+		return -1;
+	}
     bool Remove(char *name) { return Unlink(name) == 0; }
-
 };
 
 #else // FILESYS
 class FileSystem {
   public:
+	// Declare variable
+	OpenFile** openfile;
+	int index;
+
     FileSystem(bool format);		// Initialize the file system.
 					// Must be called *after* "synchDisk" 
 					// has been initialized.
@@ -78,6 +123,10 @@ class FileSystem {
 					// Create a file (UNIX creat)
 
     OpenFile* Open(char *name); 	// Open a file (UNIX open)
+
+	OpenFile* Open(char *name, int type);
+
+	int FindFreeSlot();	
 
     bool Remove(char *name);  		// Delete a file (UNIX unlink)
 

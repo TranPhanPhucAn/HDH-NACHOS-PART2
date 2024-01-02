@@ -25,6 +25,7 @@
 #include "system.h"
 #include "syscall.h"
 #include "directory.h"
+#include "ftable.h"
 #define MaxFileLength 32
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -214,6 +215,53 @@ void ExceptionHandlerPrintString()
 
     delete buffer;
 }
+
+// Input: position(int), file id (OpenFileId)
+// Output: -1: Error, Real position: Successful
+// Uses: move the cursor to the appropriate position in the file 
+//with parameters being the position to move and the file id
+void ExceptionHandleSeek(){
+    int pos = machine->ReadRegister(4); 
+    int fileId = machine->ReadRegister(5);
+
+    if(fileId < 0 ||fileId >= MAX_FILE)
+    {
+        printf("\nThe file id is invalid!");
+        DEBUG('a', "\nThe file id is invalid!");
+        machine->WriteRegister(2,-1);
+        return;
+    }
+
+    if(fileSystem->openfile[fileId] == NULL)
+    {
+        printf("\nThis file does not exist!");
+        DEBUG('a', "\nThis file does not exist!");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    if (fileId ==0 || fileId == 1)
+    {
+        printf("\nCannot use system call Seek on console files!");
+        DEBUG('a', "\nCannot use system call Seek on console files!");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    pos = (pos == -1) ? fileSystem->openfile[fileId]->Length() : pos;
+    if (pos > fileSystem->openfile[fileId]->Length() || pos < 0)
+    {
+        printf("\nInvalid position!");
+        DEBUG('a', "\nInvalid position!");
+        machine->WriteRegister(2, -1);
+    }
+    else{
+        fileSystem->openfile[fileId]->Seek(pos);
+        machine->WriteRegister(2, pos);
+    }
+    return; 
+}
+
 // Output: Loi tra ve -1, thanh cong tra ve 0
 // Chuc nang: tao ra file moi voi tham so la ten file
 void ExceptionHandleCreateFile()
@@ -334,10 +382,8 @@ void ExceptionHandlerReadFile()
     while (i < count)
     {
         char c = 0;
-        if (gFTable->ReadChar(c, fileID) == 0){
-            machine->WriteRegister(2,-2);
-            return;
-        } 
+        if (gFTable->ReadChar(c, fileID) == 0)
+            break;
         machine->WriteMem(buf + i, 1, (int)c);
         ++i;
     }
@@ -619,6 +665,10 @@ void ExceptionHandler(ExceptionType which)
             ExceptionHandlerWriteFile();
             IncreasePC();
             break;
+        case SC_Seek:
+            ExceptionHandleSeek();
+            IncreasePC();
+            break;    
         case SC_Exec:
             ExceptionHandleExec();
             IncreasePC();

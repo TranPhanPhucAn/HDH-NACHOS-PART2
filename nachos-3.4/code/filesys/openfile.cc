@@ -34,6 +34,15 @@ OpenFile::OpenFile(int sector)
     seekPosition = 0;
 }
 
+// New install
+OpenFile::OpenFile(int sector, int _type)
+{ 
+    hdr = new FileHeader;
+    hdr->FetchFrom(sector);
+    seekPosition = 0;
+    type = _type;
+}
+
 //----------------------------------------------------------------------
 // OpenFile::~OpenFile
 // 	Close a Nachos file, de-allocating any in-memory data structures.
@@ -194,4 +203,9 @@ int
 OpenFile::Length() 
 { 
     return hdr->FileLength(); 
+}
+
+// New install
+int OpenFile::GetCurrentPos(){
+    return seekPosition;
 }
