@@ -1,8 +1,8 @@
 #include "syscall.h"
 
 int main() {
-    SpaceId pingPID, pongPID;
-
+    int pingPID, pongPID;
+    
     CreateSemaphore("sem_ping", 1);
     CreateSemaphore("sem_pong", 0);
 
