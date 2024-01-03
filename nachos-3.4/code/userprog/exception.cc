@@ -645,7 +645,7 @@ void ExceptionHandler(ExceptionType which)
             ExceptionHandlerPrintString();
             IncreasePC();
             break;
-        case SC_Create:
+        case SC_CreateFile:
             ExceptionHandleCreateFile();
             IncreasePC();
             break;

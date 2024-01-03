@@ -31,7 +31,7 @@ int main()
 		return 1;
 	
 	// Tao file output.txt de ghi ket qua cuoi cung	
-	flagSuccess = Create("output.txt");
+	flagSuccess = CreateFile("output.txt");
 	if(flagSuccess == -1)
 		return 1;
 	
@@ -86,7 +86,7 @@ int main()
 	while(numTimes--)
 	{
 		// Tao file students.txt
-		flagSuccess = Create("students.txt");
+		flagSuccess = CreateFile("students.txt");
 		if(flagSuccess == -1)
 		{
 			Close(inputId);
@@ -134,10 +134,6 @@ int main()
 			Close(outputId);
 			return 1;
 		}
-
-		PrintString("\n Times: ");
-		PrintInt(numTimes);
-		PrintString("\n");	
 
 		// Doc cac voi vao output.txt		
 		while(1)

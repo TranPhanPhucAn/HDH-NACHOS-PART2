@@ -22,7 +22,7 @@ void main()
 		
 
 		// Tao file result.txt de ghi voi nao su dung
-		flagSuccess = Create("result.txt");
+		flagSuccess = CreateFile("result.txt");
 		if(flagSuccess == -1)
 		{
 			Signal("main"); // tro ve tien trinh chinh
@@ -42,7 +42,7 @@ void main()
 		iFile = 0;
 	
 		// Tao file watertap.txt
-		flagSuccess = Create("watertap.txt");
+		flagSuccess = CreateFile("watertap.txt");
 		if(flagSuccess == -1)
 		{
 			Close(studentId);
@@ -88,7 +88,7 @@ void main()
 				Wait("students");
 				
 				// Tao file watertap.txt
-				flagSuccess = Create("watertap.txt");
+				flagSuccess = CreateFile("watertap.txt");
 				if(flagSuccess == -1)
 				{
 					Close(studentId);
